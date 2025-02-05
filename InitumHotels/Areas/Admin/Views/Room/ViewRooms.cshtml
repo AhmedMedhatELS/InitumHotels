@@ -1,0 +1,145 @@
+﻿@model List<Room>
+
+@{
+    ViewData["Title"] = "Room List";
+}
+
+<h2 class="mb-4">Rooms List</h2>
+
+<partial name="_StatusMessages" />
+
+@foreach (var room in Model)
+{
+    <div class="card mb-3">
+        <div class="card-header" data-bs-toggle="collapse" href="#roomCollapse_@room.RoomId" role="button">
+            <h5 class="mb-0">@room.RoomName</h5>
+        </div>
+        <div id="roomCollapse_@room.RoomId" class="collapse">
+            <div class="card-body d-flex">
+                @{
+                    if (room.Images.Count == 0)
+                    {
+                        <div class="image-slider w-50">
+                            <div class="image-container" id="slider_@room.RoomId">
+                                <img src="~/images/rooms/NoImage.jpg" class="noImage slider-imag active" alt="Room Image">
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Custom Image Slider -->
+                        <div class="image-slider w-50">
+                            <div class="image-container" id="slider_@room.RoomId">
+                                @for (int i = 0; i < room.Images.Count; i++)
+                                {
+                                    <img src="~/images/rooms/@room.Images.ToList()[i].ImageName" class="slider-image @(i == 0 ? "active" : "")" id="img_@(room.RoomId)_@i" alt="Room Image">
+                                }
+                            </div>
+                            <button class="prev" onclick="prevImage(@room.RoomId)">&#10094;</button>
+                            <button class="next" onclick="nextImage(@room.RoomId)">&#10095;</button>
+                        </div>
+                    }
+                }
+               
+                <!-- Room Details -->
+                <div class="ms-3 w-50">
+                    <p><strong>Description:</strong></p>
+                    <textarea rows="3" style="resize: none; width:25rem;" disabled>@room.Description</textarea>
+                    <p><strong>Beds:</strong> @room.NumBeds</p>
+                    <p><strong>Max Adults:</strong> @room.MaxAdults</p>
+                    <p><strong>Max Children:</strong> @room.MaxChildren</p>
+                    <p><strong>Price Per Night:</strong> @room.PricePerNight $</p>
+                    <p><strong>Room Type:</strong> @room.RoomType.Name</p>
+                    <div>
+                        <a asp-action="EditRoom" asp-route-id="@room.RoomId" class="btn btn-success">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                        <a href="javascript:void(0);" class="btn btn-danger"
+                           onclick="return confirm('Are you sure?');">
+                            <i class="fas fa-delete"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Custom Slider JavaScript -->
+<script>
+    function nextImage(roomId) {
+        let images = document.querySelectorAll(`#slider_${roomId} .slider-image`);
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+        if (currentIndex !== -1) {
+            images[currentIndex].classList.remove('active');
+            let nextIndex = (currentIndex + 1) % images.length;
+            images[nextIndex].classList.add('active');
+        }
+    }
+
+    function prevImage(roomId) {
+        let images = document.querySelectorAll(`#slider_${roomId} .slider-image`);
+        let currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+        if (currentIndex !== -1) {
+            images[currentIndex].classList.remove('active');
+            let prevIndex = (currentIndex - 1 + images.length) % images.length;
+            images[prevIndex].classList.add('active');
+        }
+    }
+</script>
+
+<!-- Custom CSS for Image Slider -->
+<style>
+    .image-slider {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .image-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    .slider-image {
+        display: none;
+        width: 30rem;
+        height: 20rem;
+        border-radius: 5px;
+    }
+
+    .noImage {
+        width: 30rem;
+        height: 20rem;
+        border-radius: 5px;
+    }
+
+        .slider-image.active {
+            display: block;
+        }
+
+    .prev, .next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .prev {
+        left: 5px;
+    }
+
+    .next {
+        right: 5px;
+    }
+</style>

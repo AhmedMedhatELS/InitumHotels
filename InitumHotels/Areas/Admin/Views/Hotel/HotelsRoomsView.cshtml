@@ -1,0 +1,75 @@
+﻿@model HotelsRoomsList
+
+@{
+    ViewData["Title"] = "Manage Hotel Rooms";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Manage Hotel Rooms</h2>
+
+    <partial name="_StatusMessages" />
+
+    <!-- Hotel Sections -->
+    <div class="accordion" id="hotelRoomsAccordion">
+        @foreach (var hotel in Model.HotelBranches)
+        {
+            <div class="accordion-item">
+                <!-- Hotel Header -->
+                <h2 class="accordion-header" id="heading-@hotel.HotelBranchId">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@hotel.HotelBranchId">
+                        @hotel.HotelName (@hotel.HotelAssignedRooms.Count Rooms)
+                    </button>
+                </h2>
+
+                <!-- Hotel Content -->
+                <div id="collapse-@hotel.HotelBranchId" class="accordion-collapse collapse" data-bs-parent="#hotelRoomsAccordion">
+                    <div class="accordion-body">
+
+                        <!-- Add Room Form for Each Hotel -->
+                        <form method="post" asp-action="AddRoomToHotel" class="mb-3">
+                            <input type="hidden" name="HotelId" value="@hotel.HotelBranchId" />
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <label class="form-label">Select Room to Add</label>
+                                    <select class="form-select" name="RoomId" required>
+                                        <option value="" disabled selected>Choose a room...</option>
+                                        @foreach (var room in Model.RoomSimpleList)
+                                        {
+                                            if (hotel.HotelAssignedRooms.Any(r => r.Id == room.Id)) continue;
+                                            <option value="@room.Id">@room.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-4 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">Add Room</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Assigned Rooms List -->
+                        <h6>Assigned Rooms:</h6>
+                        @if (hotel.HotelAssignedRooms.Any())
+                        {
+                            <ul class="list-group">
+                                @foreach (var room in hotel.HotelAssignedRooms)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        @room.Name
+                                        <a asp-action="DeleteRoomToHotel" asp-route-HotelId="@hotel.HotelBranchId" asp-route-RoomId="@room.Id" class="btn btn-danger btn-sm">
+                                            <i class="bi bi-trash"></i> Remove
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted">No rooms assigned to this hotel.</p>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

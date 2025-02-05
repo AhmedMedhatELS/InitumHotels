@@ -1,0 +1,107 @@
+﻿@model NewRoom
+
+@{
+    ViewData["Title"] = "Add New Room";
+}
+
+    <div class="card shadow p-4">
+    
+        <partial name="_StatusMessages" />
+
+        
+        <form asp-action="AddRoom" method="post" enctype="multipart/form-data">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Add New Room</h2>
+            <button type="submit" class="btn btn-primary">Add Room</button>
+        </div>
+
+            <div class="mb-3">
+                <label asp-for="RoomName" class="form-label">Room Name</label>
+                <input asp-for="RoomName" class="form-control">
+                <span asp-validation-for="RoomName" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label">Description</label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label asp-for="NumBeds" class="form-label">Number of Beds</label>
+                    <input asp-for="NumBeds" type="number" class="form-control">
+                    <span asp-validation-for="NumBeds" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MaxAdults" class="form-label">Max Adults</label>
+                    <input asp-for="MaxAdults" type="number" class="form-control">
+                    <span asp-validation-for="MaxAdults" class="text-danger"></span>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label asp-for="MaxChildren" class="form-label">Max Children</label>
+                    <input asp-for="MaxChildren" type="number" class="form-control">
+                    <span asp-validation-for="MaxChildren" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="PricePerNight" class="form-label">Price Per Night</label>
+                <input asp-for="PricePerNight" type="number" class="form-control">
+                <span asp-validation-for="PricePerNight" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="RoomTypeId" class="form-label">Room Type</label>
+                <select asp-for="RoomTypeId" class="form-select">
+                    <option value="">Select Room Type</option>
+                    @foreach (var type in Model.roomTypes)
+                    {
+                        <option value="@type.RoomTypeId">@type.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="RoomTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Room Images</label>
+                <input type="file" id="imageInput" name="ImagesFiles" class="form-control" multiple accept="image/*" required>
+            </div>
+
+            <div id="imagePreview" class="row g-3"></div>
+        </form>
+    </div>
+<script>
+    let selectedFiles = [];  // Array to hold selected files
+
+    document.getElementById('imageInput').addEventListener('change', function(event) {
+        let preview = document.getElementById('imagePreview');
+        preview.innerHTML = ''; // Clear previous previews
+
+        selectedFiles = Array.from(event.target.files); // Update the selected files array
+
+        selectedFiles.forEach((file) => {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let col = document.createElement('div');
+                col.classList.add('col-md-3', 'text-center', 'position-relative');
+
+                col.innerHTML = `
+                    <div class="border p-2">                        
+                        <img src="${e.target.result}" class="img-fluid rounded" style="height: 100px; object-fit: cover;">
+                    </div>
+                `;
+                preview.appendChild(col);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,201 @@
+﻿@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home Page";
+
+    int selectedBranchId = 0;
+
+    string? CheckInDate = null;
+    string? CheckOutDate = null;
+
+    bool ISReservationOn = false;
+
+    if(Model.ReservationFilter != null)
+    {
+        selectedBranchId = Model.ReservationFilter.BranchId;
+        CheckInDate = Model.ReservationFilter.CheckInDate?.ToString("yyyy-MM-dd");
+        CheckOutDate = Model.ReservationFilter.CheckOutDate?.ToString("yyyy-MM-dd");
+
+        ISReservationOn = Model.ReservationFilter.BranchId > 0;
+    }
+}
+
+<partial name="_StatusMessages" />
+
+<!-- Search Form (optional) -->
+<form id="searchForm" method="post" asp-action="FilterHome">
+    <div class="row mb-3 p-3 border rounded card-header bg-dark text-white">
+        <!-- Hotel Branchs -->
+        <div class="col-md-4">
+            <label for="BranchId" class="form-label">Choose Branch <span class="text-danger">*</span></label>
+            <select class="form-select" id="BranchId" name="BranchId" required>
+                <option value="" selected>Select Branch</option>
+                @{
+                    foreach(var branch in Model.HotelBranches)
+                    {
+                        if (selectedBranchId == branch.HotelBranchId)
+                        {
+                            <option value="@branch.HotelBranchId" selected>@branch.HotelBranchName</option>
+                        }
+                        else
+                        {
+                            <option value="@branch.HotelBranchId">@branch.HotelBranchName</option>
+                        }                        
+                    }
+                }
+            </select>
+        </div>
+
+        <!-- Check-in and Check-out Dates -->
+        <div class="col-md-4">
+            <label for="CheckInDate" class="form-label">Check-in date <span class="text-danger">*</span></label>
+            <input type="date" class="form-control" id="CheckInDate" name="CheckInDate" required
+                   value="@CheckInDate">
+        </div>
+
+        <div class="col-md-4 d-flex align-items-end">
+            <div class="w-100 d-flex gap-2">
+                <div class="flex-grow-1">
+                    <label for="CheckOutDate" class="form-label">Check-out date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="CheckOutDate" name="CheckOutDate" required
+                           value="@CheckOutDate">
+                </div>
+                <button type="submit" class="btn btn-primary align-self-end">Search</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+@if(ISReservationOn)
+{<!-- Summary Section -->
+<div class="row my-3 p-3 border rounded bg-light">
+    <div class="col-md-4">
+        <h5>Total Price: <span id="totalPrice" class="text-success">$0</span></h5>
+    </div>
+    <div class="col-md-4">
+        <h5>Total Rooms: <span id="totalRooms" class="text-primary">0</span></h5>
+    </div>
+    <div class="col-md-4 text-end">
+        <button class="btn btn-success" id="reserveBtn">Reserve</button>
+    </div>
+</div>
+}
+
+<!-- Rooms List -->
+@foreach (var room in Model.RoomsHomeViews)
+{
+    <div class="card mb-3">
+        <div class="row g-0">
+            <!-- Room Image Slider -->
+            <div class="col-md-4">
+                <div id="carousel-@room.RoomId" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        @for (int i = 0; i < room.RoomImages.Count; i++)
+                        {
+                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                <img src="~/images/rooms/@room.RoomImages[i]" class="d-block w-100 rounded" style="height: 250px; object-fit: cover;">
+                            </div>
+                        }
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carousel-@room.RoomId" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carousel-@room.RoomId" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Room Details -->
+            <div class="col-md-8 p-3">
+                <h4>@room.RoomName</h4>
+                <p>@room.Description</p>
+                <p><strong>Beds:</strong> @room.NumBeds | <strong>Max Adults:</strong> @room.MaxAdults | <strong>Max Children:</strong> @room.MaxChildren</p>
+                <p><strong>Room Type:</strong> @room.RoomTypeName | <strong>Price per Night:</strong> $@room.PricePerNight</p>
+
+                @if (ISReservationOn)
+                {
+                    <!-- Room Selection Input -->
+                    <label for="roomCount-@room.RoomId" class="form-label">Select Number of Rooms</label>
+                    <input type="number" id="roomCount-@room.RoomId" class="form-control roomCount"
+                           data-price="@room.PricePerNight" data-roomid="@room.RoomId"
+                           data-maxAdult="@room.MaxAdults" data-maxChildren="@room.MaxChildren"
+                           min="0" max="5" value="0">
+
+                    <!-- Collapsible Section for Guest Details -->
+                    <button class="btn btn-outline-primary mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@room.RoomId">
+                        Configure Guests
+                    </button>
+
+                    <div class="collapse mt-3" id="collapse-@room.RoomId">
+                        <div id="guestConfig-@room.RoomId"></div>
+                    </div>
+                }
+                else
+                {
+                    <p class="alert alert-info text-center p-3 mb-4 rounded shadow">
+                        Please make the filtration first.
+                    </p>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel">Reservation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form asp-controller="Reservation" asp-action="MakeReservaion" method="post">
+                   
+                    @if (ISReservationOn)
+                    {
+                        <input hidden id="BranchId" name="BranchId" value="@selectedBranchId" />
+                        <input hidden id="CheckInDate" name="CheckInDate" value="@CheckInDate" />
+                        <input hidden id="CheckOutDate" name="CheckOutDate" value="@CheckOutDate" />
+                    }
+                   
+                    <input hidden id="ReservationRoomsData" name="ReservationRoomsData" />
+
+                    <div class="form-group">
+                        <label for="CustomerName">Customer Name</label>
+                        <input type="text" id="CustomerName" name="CustomerName" class="form-control"
+                        value="@Model.CustomerName" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="Email">Email</label>
+                        <input type="email" id="Email" name="Email" class="form-control"
+                               value="@Model.Email" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="NationalId">National ID</label>
+                        <input type="text" id="NationalId" name="NationalId" class="form-control"
+                        value="@Model.NationalId" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="PhoneNumber">Phone Number</label>
+                        <input type="text" id="PhoneNumber" name="PhoneNumber" class="form-control"
+                        value="@Model.PhoneNumber" required />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Reservation</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="~/js/CheackResData.js"></script>
+
+<script src="~/js/HandelingRoomsNumber.js"></script>
+
+<script src="~/js/FilterationLogic.js"></script>

@@ -1,0 +1,41 @@
+﻿@using Models
+@inject SignInManager<ApplicationUser> SignInManager
+ @{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+} 
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Account Management</h5>
+        <ul class="nav nav-pills flex-column">
+            <li class="nav-item">
+                <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index">
+                    <i class="bi bi-person"></i> Profile
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email">
+                    <i class="bi bi-envelope"></i> Email
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)" id="change-password" asp-page="./ChangePassword">
+                    <i class="bi bi-lock"></i> Password
+                </a>
+            </li>
+            @if (hasExternalLogins)
+            {
+                <li class="nav-item">
+                    <a class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" id="external-logins" asp-page="./ExternalLogins">
+                        <i class="bi bi-cloud"></i> External Logins
+                    </a>
+                </li>
+            }
+            <li class="nav-item">
+                <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData">
+                    <i class="bi bi-person-badge"></i> Personal Data
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

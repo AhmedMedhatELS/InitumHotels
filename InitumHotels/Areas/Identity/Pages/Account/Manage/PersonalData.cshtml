@@ -1,0 +1,22 @@
+﻿@page
+@model PersonalDataModel
+@{
+    ViewData["Title"] = "Personal Data";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<div class="container">
+    <h3 class="mb-4">@ViewData["Title"]</h3>
+
+    <div class="card shadow-sm">
+        <div class="card-body">  
+            <form id="download-data" asp-page="DownloadPersonalData" method="post" class="mb-3">
+                <button class="btn btn-dark btn-lg w-100" type="submit">Download Data</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

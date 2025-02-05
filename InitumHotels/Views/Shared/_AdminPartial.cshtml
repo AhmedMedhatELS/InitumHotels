@@ -1,0 +1,102 @@
+﻿@using Utility
+@{
+    var currentController = Context.Request.RouteValues["controller"]?.ToString();
+    var currentAction = Context.Request.RouteValues["action"]?.ToString();
+}
+
+
+<div id="sidebar" class="active">
+    <div class="sidebar-wrapper active">
+        <div class="sidebar-header">
+            <div class="d-flex justify-content-between">
+                <div class="logo">
+                    <a asp-area="Customer" asp-controller="Home" asp-action="Index" class="d-flex align-items-center">
+                        <img src="~/favicon.png" alt="Logo" class="img-fluid me-2" style="max-width: 90px; height: auto;">
+                        <h5 class="font-bold mb-0">InitumHotels</h5>
+                    </a>
+                </div>
+                <div class="toggler">
+                    <a href="#" class="sidebar-hide d-xl-none d-block"><i class="bi bi-x bi-middle"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="sidebar-menu">
+            <ul class="menu">
+                <li class="sidebar-title">Menu</li>
+
+                <li class="sidebar-item">
+                    <a asp-area="Customer" asp-controller="Home" asp-action="Index" class='sidebar-link'>
+                        <i class="bi bi bi-house-fill"></i>
+                        <span>Home Page</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item @(currentController == "Dashboard" && currentAction == "Index" ? "active" : "" )">
+                    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class='sidebar-link'>
+                        <i class="bi bi-grid-fill"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item @(currentController == "Reservation" && currentAction == "ReservationsView" ? "active" : "" )">
+                    <a asp-area="Admin" asp-controller="Reservation" asp-action="ReservationsView" class='sidebar-link'>
+                        <i class="bi bi-list-check"></i>
+                        <span>Reservations</span>
+                    </a>
+                </li>
+
+                <li class="sidebar-item has-sub @(currentController == "Room" ? "active" : "" )">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Rooms Data</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item @(currentController == "Room" && currentAction == "RoomTypes" ? "active" : "" )">
+                            <a asp-area="Admin" asp-controller="Room" asp-action="RoomTypes">
+                                <i class="bi bi-house-door-fill"></i>
+                                <span>Room Types</span>
+                            </a>
+                        </li>
+
+                        <li class="submenu-item @(currentController == "Room" && currentAction == "NewRoom" ? "active" : "" )">
+                            <a asp-area="Admin" asp-controller="Room" asp-action="NewRoom" >
+                                <i class="bi bi-door-open"></i>
+                                <span>New Room</span>
+                            </a>
+                        </li>
+
+                        <li class="submenu-item @(currentController == "Room" && currentAction == "ViewRooms" ? "active" : "" )">
+                            <a asp-area="Admin" asp-controller="Room" asp-action="ViewRooms" >
+                                <i class="bi bi-eye"></i>
+                                <span>View Rooms</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>               
+               
+                <li class="sidebar-item has-sub @(currentController == "Hotel" ? "active" : "" )">
+                    <a href="#" class='sidebar-link'>
+                        <i class="bi bi-file-earmark-text"></i>
+                        <span>Hotels Data</span>
+                    </a>
+                    <ul class="submenu">
+                        <li class="submenu-item @(currentController == "Hotel" && currentAction == "HotelBranchs" ? "active" : "" )">
+                            <a asp-area="Admin" asp-controller="Hotel" asp-action="HotelBranchs" >
+                                <i class="bi bi-building"></i>
+                                <span>HotelBranchs</span>
+                            </a>
+                        </li>
+
+                        <li class="submenu-item @(currentController == "Hotel" && currentAction == "HotelsRoomsView" ? "active" : "" )">
+                            <a asp-area="Admin" asp-controller="Hotel" asp-action="HotelsRoomsView" >
+                                <i class="bi bi-house-door-fill"></i>
+                                <span>Hotel Rooms</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+    </div>
+</div>

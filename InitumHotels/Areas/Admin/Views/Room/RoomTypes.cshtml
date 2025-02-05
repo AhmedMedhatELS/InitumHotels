@@ -1,0 +1,70 @@
+﻿@model RoomTypeView
+
+@{
+    ViewData["Title"] = "Manage Room Types";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">Manage Room Types</h2>
+
+    <partial name="_StatusMessages" />
+
+    <!-- Add New Room Type Form -->
+    <div class="card shadow-sm p-4 mb-4">
+        <h4 class="mb-3">Add New Room Type</h4>
+        <form method="post" asp-action="NewRoomType">
+            <div class="input-group">
+                <input type="text" name="Name" class="form-control" placeholder="Enter Room Type Name" required />
+                <button type="submit" class="btn btn-primary">Add</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Room Types -->
+    <div class="card shadow-sm p-4">
+        <h4 class="mb-3">Existing Room Types</h4>
+
+        @if (Model.RoomTypes.Any())
+        {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Room Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var room in Model.RoomTypes)
+                        {
+                                    <tr>
+                                        <form method="post" asp-action="EditRoomType">
+                                            <td>@room.RoomTypeId</td>
+                                            <td>
+                                                <input type="hidden" name="RoomTypeId" value="@room.RoomTypeId" />
+                                                <input type="text" name="Name" class="form-control" value="@room.Name" required />
+                                            </td>
+                                            <td>
+                                                <button type="submit" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </button>
+                                                <a class="btn btn-danger btn-sm"
+                                                   href="javascript:void(0);"
+                                                        onclick="if(confirm('Are you sure you want to delete this room type?')) { window.location.href='/Admin/Room/DeleteRoomType?id=@room.RoomTypeId'; }">
+                                                    <i class="fas fa-trash-alt"></i> Delete
+                                                </a>
+                                            </td>
+                                        </form>
+                                    </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+        }
+        else
+        {
+                <p class="text-muted">No room types available.</p>
+        }
+    </div>
+</div>

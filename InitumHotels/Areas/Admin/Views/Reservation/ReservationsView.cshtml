@@ -1,0 +1,155 @@
+﻿@model List<ReservationsList>
+
+@{
+    ViewData["Title"] = "Reservations";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Reservations</h2>
+
+    <partial name="_StatusMessages" />
+
+    <!-- Status Filter -->
+    <div class="mb-3">
+        <label for="statusFilter" class="form-label">Filter by Status:</label>
+        <select id="statusFilter" class="form-select">
+            <option value="All">All</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="Canceled">Canceled</option>
+        </select>
+    </div>
+
+    <!-- Reservations Table -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Branch</th>
+                <th>In</th>
+                <th>Out</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var reservation in Model)
+            {
+                <tr data-status="@reservation.Status">
+                    <td>@reservation.ReservationId</td>
+                    <td>@reservation.CustomerName</td>
+                    <td>@reservation.PhoneNumber</td>
+                    <td>@reservation.HotelBranchName</td>
+                    <td>@reservation.CheckInDate</td>
+                    <td>@reservation.CheckOutDate</td>
+                    <td>
+                        <span class="badge bg-@(reservation.Status == "Pending" ? "warning" : reservation.Status == "Confirmed" ? "success" : "danger")">
+                            @reservation.Status
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#detailsModal"
+                                onclick="loadReservationDetails(@reservation.ReservationId, 
+                                '@reservation.CustomerName', '@reservation.PhoneNumber',
+                                '@reservation.Email', '@reservation.NationalId',
+                                '@reservation.DiscountOn', '@reservation.HotelBranchName',
+                                '@reservation.CheckInDate', '@reservation.CheckOutDate',
+                                '@reservation.Status','@reservation.Total',
+                                 '@reservation.RoomsJson')">
+                            Details
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal for Reservation Details -->
+<div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg alert-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="modal-title" id="detailsModalLabel"><i class="bi bi-info-circle"></i> Reservation Details</h5>
+                <button type="button" class="btn-close btn-close-white ms-5" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form method="post" asp-action="EditReservationStatus">
+                    <input type="hidden" id="reservationId" name="reservationId">
+
+                    <div class="row">
+                        <!-- Customer Information -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-header bg-light fw-bold">Customer Information</div>
+                                <div class="card-body">
+                                    <p class="mb-2"><strong>Customer Name:</strong> <span id="customerName"></span></p>
+                                    <p class="mb-2"><strong>Phone Number:</strong> <span id="phoneNumber"></span></p>
+                                    <p class="mb-2"><strong>Email:</strong> <span id="email"></span></p>
+                                    <p class="mb-0"><strong>National ID:</strong> <span id="nationalId"></span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Reservation Details -->
+                        <div class="col-md-6">
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-header bg-light fw-bold">Reservation Details</div>
+                                <div class="card-body">
+                                    <p class="mb-2"><strong>Hotel Branch:</strong> <span id="hotelBranchName"></span></p>
+                                    <p class="mb-2"><strong>From : </strong> <span id="checkInDate"></span> <strong>To :</strong> <span id="checkOutDate"></span></p>
+                                    <p class="mb-2"><strong>Total:</strong> <span id="Total"></span></p>
+                                    <p class="mb-0"><strong>Discount Applied:</strong> <span id="discountOn"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Rooms Section -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light fw-bold">
+                            <a class="text-decoration-none d-block" data-bs-toggle="collapse" href="#roomsCollapse" role="button" aria-expanded="false" aria-controls="roomsCollapse">
+                                Rooms <i class="bi bi-chevron-down float-end"></i>
+                            </a>
+                        </div>
+                        <div class="collapse" id="roomsCollapse">
+                            <div class="card-body">
+                                <div id="roomsContainer">
+                                    <!-- Room cards will be dynamically added here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Update -->
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-header bg-light fw-bold">Update Status</div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Change Status:</label>
+                                <select id="status" name="status" class="form-select">
+                                    <option value="Pending">Pending</option>
+                                    <option value="Confirmed">Confirmed</option>
+                                    <option value="Canceled">Canceled</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="emailMessage" class="form-label">Send Email Message:</label>
+                                <textarea required id="emailMessage" name="EmailMassage" class="form-control" rows="3" placeholder="Write a message to the customer..."></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-check-circle"></i> Update Reservation
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/ReservationTableLogic.js"></script>
